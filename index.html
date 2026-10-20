@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Weather NG - premium weather dashboard with search, favorites, and location insights."
+    />
+    <title>Weather NG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="authScreen" class="auth-screen hidden">
+      <div class="auth-shell">
+        <div class="brand-wrap">
+          <div class="brand-mark">W</div>
+          <div>
+            <p class="eyebrow">Premium weather</p>
+            <h1>Weather NG</h1>
+          </div>
+        </div>
+
+        <div class="auth-card">
+          <div class="auth-tabs">
+            <button class="tab active" data-mode="login" type="button">Sign in</button>
+            <button class="tab" data-mode="signup" type="button">Create account</button>
+            <button class="tab" data-mode="reset" type="button">Reset</button>
+          </div>
+
+          <form id="loginForm" class="auth-form active">
+            <label>
+              <span>Email</span>
+              <input type="email" id="loginEmail" placeholder="name@example.com" required />
+            </label>
+            <label>
+              <span>Password</span>
+              <input type="password" id="loginPassword" placeholder="Your password" required />
+            </label>
+            <button class="primary-btn wide" type="submit">Sign in</button>
+          </form>
+
+          <form id="signupForm" class="auth-form">
+            <label>
+              <span>Full name</span>
+              <input type="text" id="signupName" placeholder="Alex Morgan" required />
+            </label>
+            <label>
+              <span>Email</span>
+              <input type="email" id="signupEmail" placeholder="name@example.com" required />
+            </label>
+            <label>
+              <span>Password</span>
+              <input type="password" id="signupPassword" placeholder="At least 6 characters" minlength="6" required />
+            </label>
+            <button class="primary-btn wide" type="submit">Create account</button>
+          </form>
+
+          <form id="resetForm" class="auth-form">
+            <label>
+              <span>Email</span>
+              <input type="email" id="resetEmail" placeholder="name@example.com" required />
+            </label>
+            <button class="primary-btn wide" type="submit">Send reset link</button>
+          </form>
+
+          <div class="auth-actions">
+            <button id="guestBtn" class="ghost-btn" type="button">Continue as guest</button>
+          </div>
+
+          <p id="authStatus" class="auth-status" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="appShell" class="app-shell">
+      <header class="topbar">
+        <div class="brand-mini">
+          <div class="brand-mark small">W</div>
+          <span>Weather NG</span>
+        </div>
+
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Search for a city or place"
+            autocomplete="off"
+          />
+          <div id="searchResults" class="search-results hidden"></div>
+        </div>
+
+        <div class="topbar-tools">
+          <div class="segmented-control">
+            <button class="segment active" data-unit="C" type="button">°C</button>
+            <button class="segment" data-unit="F" type="button">°F</button>
+          </div>
+          <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle theme">☀</button>
+          <button id="authToggle" class="outline-btn" type="button">Sign in</button>
+        </div>
+      </header>
+
+      <p id="appStatus" class="app-status" role="status" aria-live="polite"></p>
+
+      <div class="content-grid">
+        <aside class="sidebar">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Saved cities</h3>
+              <button id="refreshWeatherBtn" class="mini-btn" type="button">Refresh</button>
+            </div>
+            <div id="favoritesList" class="favorites-list"></div>
+          </div>
+
+          <div class="panel compact-panel">
+            <div class="panel-head centered">
+              <h3>Location</h3>
+            </div>
+            <button id="locationBtn" class="primary-btn wide" type="button">Use my location</button>
+            <button id="homeBtn" class="ghost-btn wide" type="button">Return home</button>
+          </div>
+        </aside>
+
+        <main class="main-panel">
+          <section class="hero panel">
+            <div class="hero-meta">
+              <p id="conditionBadge" class="condition-badge">Loading weather</p>
+              <div class="meta-row">
+                <h2 id="locationName">City</h2>
+                <button id="favoriteToggle" class="star-btn" type="button" aria-label="Save city">☆</button>
+              </div>
+              <p id="locationSub" class="location-sub">Region · Country</p>
+              <p id="lastUpdated" class="last-updated">Waiting for data</p>
+            </div>
+
+            <div class="hero-main">
+              <div class="weather-icon-wrap">
+                <div id="weatherIcon" class="weather-icon sun" aria-label="weather condition">☀</div>
+              </div>
+              <div class="temp-wrap">
+                <div id="currentTemp" class="current-temp">--°</div>
+                <div class="feels-like">Feels like <span id="feelsLike">--°</span></div>
+              </div>
+            </div>
+
+            <div class="hero-stats">
+              <div>
+                <span>High</span>
+                <strong id="dailyHigh">--°</strong>
+              </div>
+              <div>
+                <span>Low</span>
+                <strong id="dailyLow">--°</strong>
+              </div>
+              <div>
+                <span>Condition</span>
+                <strong id="weatherText">--</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="stats-grid">
+            <article class="stat-card panel">
+              <p>Wind</p>
+              <strong id="windSpeed">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Wind gusts</p>
+              <strong id="windGust">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Humidity</p>
+              <strong id="humidity">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>UV index</p>
+              <strong id="uvIndex">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Visibility</p>
+              <strong id="visibility">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Pressure</p>
+              <strong id="pressure">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Cloud cover</p>
+              <strong id="cloudCover">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Dew point</p>
+              <strong id="dewPoint">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Precipitation</p>
+              <strong id="precipitation">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Sunrise</p>
+              <strong id="sunrise">--</strong>
+            </article>
+            <article class="stat-card panel">
+              <p>Sunset</p>
+              <strong id="sunset">--</strong>
+            </article>
+          </section>
+
+          <section class="panel chart-panel">
+            <div class="panel-head">
+              <h3>Hourly forecast</h3>
+              <span id="chartRange" class="muted-label">Today</span>
+            </div>
+            <div id="hourlyList" class="hourly-list" aria-label="Hourly forecast"></div>
+          </section>
+
+          <section class="panel forecast-panel">
+            <div class="panel-head">
+              <h3>7-day forecast</h3>
+            </div>
+            <div id="forecastList" class="forecast-list"></div>
+          </section>
+
+          <section class="panel history-panel">
+            <div class="panel-head">
+              <h3>Yesterday</h3>
+            </div>
+            <div id="historyList" class="history-list"></div>
+          </section>
+
+          <section class="panel chart-panel">
+            <div class="panel-head">
+              <h3>Forecast trends</h3>
+              <div class="chart-switch" role="group" aria-label="Forecast chart">
+                <button class="mini-btn chart-mode active" type="button" data-chart-mode="temperature">Temperature</button>
+                <button class="mini-btn chart-mode" type="button" data-chart-mode="rain">Rain chance</button>
+              </div>
+            </div>
+            <canvas id="dailyChart" height="140" aria-label="Seven day weather chart"></canvas>
+          </section>
+
+          <section class="panel cloud-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Cloud Mode</h3>
+                <p class="muted-label">Notable conditions across a curated set of world cities</p>
+              </div>
+              <button id="cloudRefresh" class="mini-btn" type="button">Refresh</button>
+            </div>
+            <p id="cloudExplanation" class="cloud-explanation">
+              Ranked by measured temperature, rain probability, wind, and storm conditions. This is not a live global scan.
+            </p>
+            <div id="cloudList" class="cloud-list"></div>
+          </section>
+
+          <section class="panel map-panel">
+            <div class="panel-head">
+              <h3>Map</h3>
+            </div>
+            <div id="weatherMap" class="weather-map"></div>
+          </section>
+        </main>
+      </div>
+      <footer class="data-credit">
+        Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a>.
+        Maps © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>.
+      </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="app.js"></script>
+  </body>
+</html>

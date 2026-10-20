@@ -835,6 +835,51 @@ input {
     padding: 14px;
   }
 
+  .hero {
+    padding: 16px;
+  }
+
+  .hero-main {
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .weather-icon-wrap {
+    width: 76px;
+    height: 76px;
+    flex: 0 0 76px;
+  }
+
+  .weather-icon {
+    border-radius: 22px;
+    font-size: 2.5rem;
+  }
+
+  .current-temp {
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    justify-items: stretch;
+  }
+
+  .hero-stats div {
+    min-width: 0;
+    padding: 9px 8px;
+    text-align: left;
+  }
+
+  .hero-stats span {
+    font-size: 0.62rem;
+  }
+
+  .hero-stats strong {
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+  }
+
   .topbar {
     flex-wrap: wrap;
   }
@@ -898,5 +943,23 @@ input {
 
   .cloud-city-reading .mini-btn {
     padding: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero {
+    padding: 12px;
+  }
+
+  .hero-stats {
+    gap: 6px;
+  }
+
+  .hero-stats div {
+    padding: 8px 6px;
+  }
+
+  .hero-stats span {
+    font-size: 0.55rem;
   }
 }
